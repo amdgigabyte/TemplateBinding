@@ -82,7 +82,7 @@
         return this.values[index];
       },
 
-      delete: function(key, value) {
+      deleteIt: function(key, value) {
         var index = this.keys.indexOf(key);
         if (index < 0)
           return false;
@@ -129,7 +129,7 @@
 
   var BIND = 'bind';
   var REPEAT = 'repeat';
-  var IF = 'if';
+  var IFBIND = 'if';
 
   var templateAttributeDirectives = {
     'template': true,
@@ -481,7 +481,7 @@
       if (this.iterator_)
         this.iterator_.closeDeps();
 
-      if (!directives.if && !directives.bind && !directives.repeat) {
+      if (!directives.ifBind && !directives.bind && !directives.repeat) {
         if (this.iterator_) {
           this.iterator_.close();
           this.iterator_ = undefined;
@@ -831,7 +831,7 @@
       }
 
       if (isTemplate(element) &&
-          (name === IF || name === BIND || name === REPEAT)) {
+          (name === IFBIND || name === BIND || name === REPEAT)) {
         continue;
       }
 
@@ -845,11 +845,11 @@
 
     if (isTemplate(element)) {
       bindings.isTemplate = true;
-      bindings.if = parseWithDefault(element, IF, prepareBindingFn);
+      bindings.ifBind = parseWithDefault(element, IFBIND, prepareBindingFn);
       bindings.bind = parseWithDefault(element, BIND, prepareBindingFn);
       bindings.repeat = parseWithDefault(element, REPEAT, prepareBindingFn);
 
-      if (bindings.if && !bindings.bind && !bindings.repeat)
+      if (bindings.ifBind && !bindings.bind && !bindings.repeat)
         bindings.bind = parseMustaches('{{}}', BIND, element, prepareBindingFn);
     }
 
@@ -982,10 +982,10 @@
       var deps = this.deps = {};
       var template = this.templateElement_;
 
-      if (directives.if) {
+      if (directives.ifBind) {
         deps.hasIf = true;
-        deps.ifOneTime = directives.if.onlyOneTime;
-        deps.ifValue = processBinding(IF, directives.if, template, model);
+        deps.ifOneTime = directives.ifBind.onlyOneTime;
+        deps.ifValue = processBinding(IFBIND, directives.ifBind, template, model);
 
         // oneTime if & predicate is false. nothing else to do.
         if (deps.ifOneTime && !deps.ifValue) {
@@ -1158,7 +1158,7 @@
           var model = this.iteratedValue[addIndex];
           var instance = instanceCache.get(model);
           if (instance) {
-            instanceCache.delete(model);
+            instanceCache.deleteIt(model);
           } else {
             if (this.instanceModelFn_) {
               model = this.instanceModelFn_(model);
